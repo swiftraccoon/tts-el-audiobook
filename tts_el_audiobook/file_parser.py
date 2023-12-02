@@ -1,13 +1,14 @@
 """
-This module handles the parsing of different file types for the audiobook converter.
+This module handles the parsing of different file types for
+the audiobook converter.
 It supports PDF, epub, and potentially other file formats.
 """
 
+from io import BytesIO
 from PyPDF2 import PdfReader
 import ebooklib
 from ebooklib import epub
 from bs4 import BeautifulSoup
-from io import BytesIO
 
 
 class FileParser:
@@ -29,11 +30,9 @@ class FileParser:
         """
         if self.file_type == 'pdf':
             return self.parse_pdf(file_content)
-        elif self.file_type == 'epub':
+        if self.file_type == 'epub':
             return self.parse_epub(file_content)
-        # Add other file types if necessary
-        else:
-            raise ValueError(f"Unsupported file type: {self.file_type}")
+        raise ValueError(f"Unsupported file type: {self.file_type}")
 
     def parse_pdf(self, content):
         """

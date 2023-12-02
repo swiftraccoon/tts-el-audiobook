@@ -36,7 +36,7 @@ class InputHandler:
         args = parser.parse_args()
 
         file_path = args.file_path
-        
+
         # Validate file path
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"The file {file_path} does not exist.")
