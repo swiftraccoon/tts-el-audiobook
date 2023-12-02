@@ -6,6 +6,7 @@ compatible with OpenAI's API.
 It processes text in chunks suitable for LLM context limits.
 """
 
+import logging
 import requests
 
 
@@ -28,6 +29,7 @@ class AIProcessor:
         """
         self.api_url = api_url
         self.chunk_size = chunk_size
+        logging.info(f"[ai_processor] Initialized AIProcessor with API URL {api_url} and chunk size {chunk_size}")
 
     def process_text(self, text: str) -> str:
         """
@@ -46,24 +48,36 @@ class AIProcessor:
                   for i in range(0, len(text), self.chunk_size)]
         processed_chunks = []
 
+        prompt = """
+        The following is the text extracted from a PDF or EPUB file. You are
+        formatting the text to be suitable for text-to-speech conversion. Do
+        not change the text itself, only the formatting. For example, you can
+        remove unnecessary whitespace, remove page numbers, etc.
+        """
+
         for chunk in chunks:
+            logging.info(f"[ai_processor] Processing chunk of length {len(chunk)}")
+            logging.debug(f"[ai_processor] Chunk: {chunk}")
             data = {
-                "prompt": chunk,
+                "prompt": prompt + chunk,
                 "max_tokens": self.chunk_size,
-                "temperature": 1,
+                "temperature": 0.1,
                 "top_p": 0.9
             }
             response = requests.post(
                 f"{self.api_url}/v1/completions",
                 headers={"Content-Type": "application/json"},
                 json=data
-                )
+            )
             if response.status_code == 200:
+                logging.info(f"[ai_processor] API request successful for chunk length {len(chunk)}")
                 processed_chunk = response.json()['choices'][0]['text']
+                logging.debug(f"[ai_processor] Processed chunk: {processed_chunk}")
                 processed_chunks.append(processed_chunk)
+                logging.info(f"[ai_processor] Appended rocessed chunk of length {len(processed_chunk)}")
             else:
                 raise Exception(
-                    f"API request failed with code {response.status_code}"
-                    )
+                    f"[ai_processor] API request failed with code {response.status_code}"
+                )
 
         return ' '.join(processed_chunks)

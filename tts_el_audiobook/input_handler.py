@@ -55,4 +55,4 @@ class InputHandler:
         with open(file_path, 'rb') as file:
             file_content = file.read()
 
-        return file_extension, file_content, args.voice, args.model, args.debug
+        return file_extension, file_content, args.el_voice, args.el_model, args.debug

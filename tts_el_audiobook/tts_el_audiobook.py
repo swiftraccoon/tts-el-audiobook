@@ -34,12 +34,18 @@ def main():
     try:
         input_handler = InputHandler()
         file_type, file_content, voice, model, debug = input_handler.get_file()
+        logging.debug(f"[tts_el_audiobook] File type: {file_type}")
+        logging.debug(f"[tts_el_audiobook] Voice: {voice}")
+        logging.debug(f"[tts_el_audiobook] Model: {model}")
+        logging.debug(f"[tts_el_audiobook] Debug: {debug}")
 
         parser = FileParser(file_type)
         text = parser.parse(file_content)
+        logging.info(f"[tts_el_audiobook] Parsed text length: {len(text)}")
 
         processor = TextProcessor()
         processed_text = processor.process(text)
+        logging.info(f"[tts_el_audiobook] Processed text length: {len(processed_text)}")
 
         if debug == 'text':
             write_to_debug_file('text_debug.txt', processed_text)
@@ -47,20 +53,29 @@ def main():
 
         ai_processor = AIProcessor(api_url="http://127.0.0.1:5000",
                                    chunk_size=5000)
+        logging.debug(f"[tts_el_audiobook] AI processor URL: {ai_processor.api_url}")
+        logging.debug(f"[tts_el_audiobook] AI processor chunk size: {ai_processor.chunk_size}")
         ai_processed_text = ai_processor.process_text(processed_text)
+        logging.info(f"[tts_el_audiobook] AI processed text length: {len(ai_processed_text)}")
 
         if debug == 'ai':
+            write_to_debug_file('text_debug.txt', processed_text)
             write_to_debug_file('ai_debug.txt', ai_processed_text)
             sys.exit()
 
         tts = TTSModule(api_key="your_api_key_here")
+        logging.debug(f"[tts_el_audiobook] ElevenLabs TTS API key: {tts.api_key}")
         audio_data = tts.convert_to_speech(processed_text, voice, model)
+        logging.info(f"[tts_el_audiobook] Audio data length: {len(audio_data)}")
+        logging.debug(f"[tts_el_audiobook] Voice: {voice}")
+        logging.debug(f"[tts_el_audiobook] Model: {model}")
 
         audio_output = AudioOutput()
         audio_output.save_audio_file(audio_data)
+        logging.info(f"[tts_el_audiobook] Audio file saved: {audio_output.file_name}")
 
     except Exception as e:
-        logging.error(f"Error occurred: {e}")
+        logging.error(f"[tts_el_audiobook] Error occurred: {e}")
 
 
 if __name__ == "__main__":
