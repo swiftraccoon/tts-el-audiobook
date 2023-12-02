@@ -31,8 +31,9 @@ class InputHandler:
         parser.add_argument('--model', type=str,
                             default="eleven_monolingual_v1",
                             help='Model to use for TTS')
-        parser.add_argument('--debug', action='store_true',
-                            help='Enable debug mode to save processed text')
+        parser.add_argument('--debug',
+                            help='Debug mode (ai or text)',
+                            choices=['ai', 'text'])
         args = parser.parse_args()
 
         file_path = args.file_path

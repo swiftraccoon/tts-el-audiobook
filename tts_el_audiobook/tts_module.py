@@ -20,7 +20,7 @@ class TTSModule:
         Initializes the TTSModule with the necessary API key.
 
         Parameters:
-        api_key (Optional[str]): The API key for accessing Eleven Lab's TTS API.
+        api_key (Optional[str]): The API key for accessing Eleven Lab's TTS API
                                  If None, it will use the environment variable
                                  ELEVEN_API_KEY or work with limited quota.
         """
@@ -41,7 +41,9 @@ class TTSModule:
         bytes: The audio data received from the TTS API.
         """
         chunk_size = 5000  # Set the chunk size to the API limit
-        chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+        chunks = [text[i:i+chunk_size] for i in range(
+            0, len(text), chunk_size
+        )]
 
         audio_data = []
         for chunk in chunks:

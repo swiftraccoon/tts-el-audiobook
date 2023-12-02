@@ -5,11 +5,25 @@ into an audio file using the Eleven Labs Text-to-Speech API.
 """
 
 import logging
+import sys
 from input_handler import InputHandler
+from ai_processor import AIProcessor
 from file_parser import FileParser
 from text_processor import TextProcessor
 from tts_module import TTSModule
 from audio_output import AudioOutput
+
+
+def write_to_debug_file(filename, content):
+    """
+    Writes the given content to the specified file.
+    Args:
+        filename (str): name of file to write to
+        content (str): content to write to file
+    """
+    with open(filename, 'w') as file:
+        file.write(content)
+        print(f"Debug file saved in {filename}")
 
 
 def main():
@@ -19,7 +33,7 @@ def main():
     """
     try:
         input_handler = InputHandler()
-        file_type, file_content, voice, model, debug_mode = input_handler.get_file()
+        file_type, file_content, voice, model, debug = input_handler.get_file()
 
         parser = FileParser(file_type)
         text = parser.parse(file_content)
@@ -27,13 +41,19 @@ def main():
         processor = TextProcessor()
         processed_text = processor.process(text)
 
-        if debug_mode:
-            with open('debug_processed_text.txt', 'w') as debug_file:
-                debug_file.write(processed_text)
-            print("Processed text saved in debug_processed_text.txt")
-            return
+        if debug == 'text':
+            write_to_debug_file('text_debug.txt', processed_text)
+            sys.exit()
 
-        tts = TTSModule()
+        ai_processor = AIProcessor(api_url="http://127.0.0.1:5000",
+                                   chunk_size=5000)
+        ai_processed_text = ai_processor.process_text(processed_text)
+
+        if debug == 'ai':
+            write_to_debug_file('ai_debug.txt', ai_processed_text)
+            sys.exit()
+
+        tts = TTSModule(api_key="your_api_key_here")
         audio_data = tts.convert_to_speech(processed_text, voice, model)
 
         audio_output = AudioOutput()
