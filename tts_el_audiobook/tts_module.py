@@ -4,8 +4,8 @@ processed text into speech. It utilizes the Eleven Labs Python package for
 API communication and response handling.
 """
 
-from elevenlabs import generate, set_api_key
 from typing import Optional
+from elevenlabs import generate, set_api_key
 
 
 class TTSModule:

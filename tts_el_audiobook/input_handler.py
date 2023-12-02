@@ -25,10 +25,10 @@ class InputHandler:
             description="Process a file for audiobook conversion."
         )
         parser.add_argument('file_path', type=str,
-                            help='Path to the file (PDF, epub, mobi)')
-        parser.add_argument('--voice', type=str, default="Bella",
+                            help='Path to the file (PDF, epub)')
+        parser.add_argument('--el_voice', type=str, default="Bella",
                             help='Voice to use for TTS')
-        parser.add_argument('--model', type=str,
+        parser.add_argument('--el_model', type=str,
                             default="eleven_monolingual_v1",
                             help='Model to use for TTS')
         parser.add_argument('--debug',
