@@ -1,2 +1,2 @@
 # tts-el-audiobook
-input pdf, epub, mobi. output audiobook. 
+input pdf, epub. output audiobook. 
