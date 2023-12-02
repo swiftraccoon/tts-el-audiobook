@@ -1,0 +1,8 @@
+PyPDF2
+pdfplumber
+ebooklib
+beautifulsoup4
+mobi
+pydub
+requests
+elevenlabs
