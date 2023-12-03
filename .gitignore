@@ -160,3 +160,6 @@ cython_debug/
 #.idea/
 debug_processed_text.txt
 tts-el-audiobook/
+ai_debug.txt
+text_debug.txt
+output_audio.mp3

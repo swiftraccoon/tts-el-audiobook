@@ -13,7 +13,8 @@ from text_processor import TextProcessor
 from tts_module import TTSModule
 from audio_output import AudioOutput
 
-
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filename='app.log')
+# pylint: disable=logging-fstring-interpolation
 def write_to_debug_file(filename, content):
     """
     Writes the given content to the specified file.
@@ -45,15 +46,19 @@ def main():
 
         processor = TextProcessor()
         processed_text = processor.process(text)
-        logging.info(f"[tts_el_audiobook] Processed text length: {len(processed_text)}")
+        logging.info(f"""
+                     [tts_el_audiobook] Processed text length: {len(processed_text)}
+                     """
+                     )
 
         if debug == 'text':
             write_to_debug_file('text_debug.txt', processed_text)
             sys.exit()
 
-        ai_processor = AIProcessor(api_url="http://127.0.0.1:5000",
-                                   chunk_size=5000)
-        logging.debug(f"[tts_el_audiobook] AI processor URL: {ai_processor.api_url}")
+        # ai_processor = AIProcessor(api_url="http://127.0.0.1:5000",
+        #                            chunk_size=5000)
+        # logging.debug(f"[tts_el_audiobook] AI processor URL: {ai_processor.api_url}")
+        ai_processor = AIProcessor(api_key="sk-zz", model="gpt-3.5-turbo-16k-0613", chunk_size=16000)
         logging.debug(f"[tts_el_audiobook] AI processor chunk size: {ai_processor.chunk_size}")
         ai_processed_text = ai_processor.process_text(processed_text)
         logging.info(f"[tts_el_audiobook] AI processed text length: {len(ai_processed_text)}")
@@ -63,8 +68,8 @@ def main():
             write_to_debug_file('ai_debug.txt', ai_processed_text)
             sys.exit()
 
-        tts = TTSModule(api_key="your_api_key_here")
-        logging.debug(f"[tts_el_audiobook] ElevenLabs TTS API key: {tts.api_key}")
+        tts = TTSModule(api_key="zz")
+        # logging.debug(f"[tts_el_audiobook] ElevenLabs TTS API key: {tts.api_key}")
         audio_data = tts.convert_to_speech(processed_text, voice, model)
         logging.info(f"[tts_el_audiobook] Audio data length: {len(audio_data)}")
         logging.debug(f"[tts_el_audiobook] Voice: {voice}")
@@ -72,7 +77,6 @@ def main():
 
         audio_output = AudioOutput()
         audio_output.save_audio_file(audio_data)
-        logging.info(f"[tts_el_audiobook] Audio file saved: {audio_output.file_name}")
 
     except Exception as e:
         logging.error(f"[tts_el_audiobook] Error occurred: {e}")

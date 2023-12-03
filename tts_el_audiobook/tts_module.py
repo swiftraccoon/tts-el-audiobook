@@ -27,7 +27,7 @@ class TTSModule:
         if api_key:
             set_api_key(api_key)
 
-    def convert_to_speech(self, text: str, voice: str = "Bella",
+    def convert_to_speech(self, text: str, voice: str = "Alliana",
                           model: str = "eleven_monolingual_v1") -> bytes:
         """
         Converts the given text to speech using the Eleven Lab's TTS API.

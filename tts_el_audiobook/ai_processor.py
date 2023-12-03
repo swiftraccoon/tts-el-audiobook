@@ -1,83 +1,57 @@
 """
 AI Processor Module
 
-This module handles the interaction with a local LLM API
-compatible with OpenAI's API.
+This module handles the interaction with OpenAI's API.
 It processes text in chunks suitable for LLM context limits.
 """
 
 import logging
-import requests
+import openai
 
 
 class AIProcessor:
     """
-    AI Processor for processing text using a local LLM API.
-
-    Attributes:
-        api_url (str): The URL of the local LLM API.
-        chunk_size (int): The size of text chunks to process at a time.
+    AI Processor for processing text using OpenAI's ChatGPT API.
     """
 
-    def __init__(self, api_url: str, chunk_size: int = 5000):
+    def __init__(self, api_key: str, model: str = "gpt-4", chunk_size: int = 5000):
         """
-        Initializes the AIProcessor with the API URL and chunk size.
-
-        Args:
-            api_url (str): The URL of the local LLM API.
-            chunk_size (int): The size of text chunks to process.
+        Initializes the AI Processor.
+        :param api_key: The API key for OpenAI.
+        :param model: The model to be used for completions (suitable for chat).
+        :param chunk_size: The size of text chunks to process.
         """
-        self.api_url = api_url
+        openai.api_key = api_key
+        self.model = model
         self.chunk_size = chunk_size
-        logging.info(f"[ai_processor] Initialized AIProcessor with API URL {api_url} and chunk size {chunk_size}")
 
     def process_text(self, text: str) -> str:
         """
-        Processes the given text in chunks using the local LLM API.
-
-        Args:
-            text (str): The text to be processed.
-
-        Returns:
-            str: The processed text.
-
-        Raises:
-            Exception: If the API request fails.
+        Processes the given text in chunks using OpenAI's ChatGPT API.
+        :param text: The text to be processed.
+        :return: The processed text.
+        :raise Exception: If the API request fails.
         """
+        # Split the text into manageable chunks
         chunks = [text[i:i + self.chunk_size]
                   for i in range(0, len(text), self.chunk_size)]
+
+        # Container for all the processed chunks to be joined later
         processed_chunks = []
 
-        prompt = """
-        The following is the text extracted from a PDF or EPUB file. You are
-        formatting the text to be suitable for text-to-speech conversion. Do
-        not change the text itself, only the formatting. For example, you can
-        remove unnecessary whitespace, remove page numbers, etc.
-        """
-
         for chunk in chunks:
-            logging.info(f"[ai_processor] Processing chunk of length {len(chunk)}")
-            logging.debug(f"[ai_processor] Chunk: {chunk}")
-            data = {
-                "prompt": prompt + chunk,
-                "max_tokens": self.chunk_size,
-                "temperature": 0.1,
-                "top_p": 0.9
-            }
-            response = requests.post(
-                f"{self.api_url}/v1/completions",
-                headers={"Content-Type": "application/json"},
-                json=data
+            logging.info(f"Processing chunk of size {len(chunk)}")
+            response = openai.ChatCompletion.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are an avid reader diligently converting books to readable text so you can later process them for text to speech conversion. Do not omit any words, but you can change the formatting. For example, you can remove page numbers, headers, footers, and other unnecessary text."},
+                    {"role": "user", "content": chunk.strip()},
+                ],
             )
-            if response.status_code == 200:
-                logging.info(f"[ai_processor] API request successful for chunk length {len(chunk)}")
-                processed_chunk = response.json()['choices'][0]['text']
-                logging.debug(f"[ai_processor] Processed chunk: {processed_chunk}")
-                processed_chunks.append(processed_chunk)
-                logging.info(f"[ai_processor] Appended rocessed chunk of length {len(processed_chunk)}")
-            else:
-                raise Exception(
-                    f"[ai_processor] API request failed with code {response.status_code}"
-                )
+            # Extract the response and clean it
+            message_content = response['choices'][0]['message']['content']
+            processed_chunks.append(message_content)
+            logging.debug(f"Processed chunk: {message_content}")
 
+        # Join all the processed chunks into the final string
         return ' '.join(processed_chunks)
